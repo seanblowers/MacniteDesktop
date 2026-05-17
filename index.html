@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Macnite</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <img class="logo" src="wordmark.svg" alt="Macnite" width="280" height="70" />
+    <p class="tagline">Install, update, and uninstall Mac apps in one click.</p>
+    <p class="subtle">Free. Open source. No accounts. No tracking.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button type="button" class="tab is-active" data-tab="browse" role="tab" aria-selected="true">Browse</button>
+    <button type="button" class="tab" data-tab="installed" role="tab" aria-selected="false">Installed</button>
+    <button type="button" class="tab" data-tab="updates" role="tab" aria-selected="false">Updates</button>
+  </nav>
+
+  <main>
+    <div id="brew-warning" class="warning" hidden>
+      <strong>Homebrew not found.</strong>
+      <p>Macnite Desktop needs <a href="https://brew.sh" target="_blank" rel="noopener">Homebrew</a> to install apps. Open Terminal and run the command on brew.sh, then quit and reopen Macnite.</p>
+    </div>
+
+    <section id="panel-browse" class="panel is-active" role="tabpanel">
+      <section>
+        <h2>Popular apps</h2>
+        <div id="popular-grid" class="grid" aria-busy="true">
+          <p class="loading">Loading apps…</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Search</h2>
+        <input
+          id="search"
+          class="search"
+          type="search"
+          placeholder="Search 14,000+ apps and tools…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <div id="search-results" class="results"></div>
+      </section>
+    </section>
+
+    <section id="panel-installed" class="panel" role="tabpanel" hidden>
+      <h2>Installed via Homebrew</h2>
+      <p class="hint" id="installed-empty" hidden>Nothing installed via Homebrew yet.</p>
+      <div id="installed-grid" class="grid" aria-busy="true">
+        <p class="loading">Loading installed apps…</p>
+      </div>
+    </section>
+
+    <section id="panel-updates" class="panel" role="tabpanel" hidden>
+      <div class="updates-header">
+        <h2 style="margin:0">Updates available</h2>
+        <button type="button" id="upgrade-all">Update all</button>
+      </div>
+      <p class="hint" id="updates-empty" hidden>Everything's up to date.</p>
+      <div id="updates-list" class="grid" aria-busy="true">
+        <p class="loading">Checking for updates…</p>
+      </div>
+    </section>
+  </main>
+
+  <aside id="log-panel" class="log-panel" hidden>
+    <header>
+      <strong id="log-title">Working…</strong>
+      <button type="button" id="log-close" class="ghost" hidden>Close</button>
+    </header>
+    <pre id="log-output" aria-live="polite"></pre>
+  </aside>
+
+  <footer class="selection-bar" aria-live="polite">
+    <span id="count">Tick an app to get started</span>
+    <button type="button" id="clear" class="ghost" disabled>Clear</button>
+    <button type="button" id="install" disabled>Install selected</button>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

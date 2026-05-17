@@ -1,0 +1,20 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Rust / Tauri
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# Tauri-generated icons (regenerate with `npm run icon`)
+src-tauri/icons/*.png
+src-tauri/icons/*.icns
+src-tauri/icons/*.ico
+
+# OS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
