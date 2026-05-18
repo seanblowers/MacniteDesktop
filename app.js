@@ -1,4 +1,5 @@
 import { POPULAR } from './popular.js';
+import { POPULAR_FONTS } from './popular-fonts.js';
 import {
   loadCatalogs, buildIndex, keyOf,
   selectionToPackages,
@@ -6,6 +7,9 @@ import {
 } from './shared.js';
 
 const MAX_RESULTS = 100;
+const isFont = (e) => e.kind === 'cask' && e.token.startsWith('font-');
+const fontDisplayName = (e) =>
+  (e.name || e.token).replace(/^font[-\s]+/i, '').replace(/\s+nerd\s+font$/i, ' Nerd Font');
 
 // Tauri exposes its JS API as a global when withGlobalTauri is true in
 // tauri.conf.json. If we're loaded in a plain browser (e.g. opened the
@@ -31,6 +35,9 @@ const els = {
   popularGrid: $('#popular-grid'),
   searchInput: $('#search'),
   searchResults: $('#search-results'),
+  fontsPopularGrid: $('#fonts-popular-grid'),
+  fontsSearchInput: $('#fonts-search'),
+  fontsResults: $('#fonts-results'),
   installedGrid: $('#installed-grid'),
   installedEmpty: $('#installed-empty'),
   updatesList: $('#updates-list'),
@@ -47,7 +54,12 @@ const els = {
   logToggle: $('#log-toggle'),
   logSpinner: $('#log-spinner'),
   tabs: $$('.tab'),
-  panels: { browse: $('#panel-browse'), installed: $('#panel-installed'), updates: $('#panel-updates') },
+  panels: {
+    browse: $('#panel-browse'),
+    fonts: $('#panel-fonts'),
+    installed: $('#panel-installed'),
+    updates: $('#panel-updates'),
+  },
 };
 
 // ---- Tile rendering ----
@@ -156,6 +168,60 @@ function renderPopular() {
   }
   els.popularGrid.appendChild(frag);
 }
+
+// ---- Fonts panel ----
+
+function renderPopularFonts() {
+  els.fontsPopularGrid.removeAttribute('aria-busy');
+  els.fontsPopularGrid.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  for (const { kind, token } of POPULAR_FONTS) {
+    const entry = state.byKey.get(keyOf(kind, token));
+    if (!entry) continue;
+    frag.appendChild(buildTile({ ...entry, name: fontDisplayName(entry) }));
+  }
+  if (!frag.childNodes.length) {
+    els.fontsPopularGrid.innerHTML = '<p class="hint">No popular fonts in the catalog yet.</p>';
+  } else {
+    els.fontsPopularGrid.appendChild(frag);
+  }
+}
+
+const renderFontSearch = debounce((query) => {
+  const q = query.trim().toLowerCase();
+  const matches = [];
+  for (const e of state.index) {
+    if (!isFont(e)) continue;
+    if (matches.length >= MAX_RESULTS + 1) break;
+    if (!q
+        || e.token.toLowerCase().includes(q)
+        || e.name.toLowerCase().includes(q)
+        || e.desc.toLowerCase().includes(q)) {
+      matches.push(e);
+    }
+  }
+  const overflow = matches.length > MAX_RESULTS;
+  const shown = overflow ? matches.slice(0, MAX_RESULTS) : matches;
+  els.fontsResults.innerHTML = '';
+  if (shown.length === 0) {
+    const hint = document.createElement('p');
+    hint.className = 'hint';
+    hint.textContent = 'No fonts match.';
+    els.fontsResults.appendChild(hint);
+    return;
+  }
+  const frag = document.createDocumentFragment();
+  for (const e of shown) frag.appendChild(buildTile({ ...e, name: fontDisplayName(e) }));
+  if (overflow) {
+    const hint = document.createElement('p');
+    hint.className = 'hint';
+    hint.textContent = `Showing first ${MAX_RESULTS} fonts. Refine your search to see more.`;
+    frag.appendChild(hint);
+  }
+  els.fontsResults.appendChild(frag);
+}, 150);
+
+function renderAllFonts() { renderFontSearch(els.fontsSearchInput.value || ''); }
 
 function debounce(fn, ms) {
   let t;
@@ -377,6 +443,10 @@ function switchTab(name) {
     panel.classList.toggle('is-active', on);
     panel.hidden = !on;
   }
+  if (name === 'fonts') {
+    renderPopularFonts();
+    renderAllFonts();
+  }
   if (name === 'installed') refreshInstalled();
   if (name === 'updates') refreshUpdates();
 }
@@ -384,6 +454,7 @@ function switchTab(name) {
 // ---- Wire-up ----
 
 els.searchInput.addEventListener('input', (e) => renderSearch(e.target.value));
+els.fontsSearchInput.addEventListener('input', (e) => renderFontSearch(e.target.value));
 els.installBtn.addEventListener('click', installSelected);
 els.clearBtn.addEventListener('click', clearSelection);
 els.upgradeAllBtn.addEventListener('click', () => runOp('upgrade_all', null, 'Updating everything'));
