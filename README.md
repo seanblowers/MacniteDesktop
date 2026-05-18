@@ -85,34 +85,51 @@ Defined in `src-tauri/src/lib.rs`:
 
 All streaming commands emit `LogLine { stream, line }` events on the event name the frontend passes in.
 
-## Signing & notarization (release builds)
+## Install & update via Homebrew
 
-Macnite ships a drag-and-drop DMG. With an Apple Developer ID the build is signed and notarized so Gatekeeper opens it without warnings on first launch.
+Macnite ships as a Homebrew cask through the [seanblowers/homebrew-macnite](https://github.com/seanblowers/homebrew-macnite) tap. One-line install:
 
-1. Make sure your Developer ID Application cert is in the login keychain. Verify with:
+```sh
+brew install --cask seanblowers/macnite/macnite
+```
+
+To update later:
+
+```sh
+brew upgrade --cask macnite
+```
+
+Macnite's own **Updates** tab will list `macnite` once a newer release is published. Run `brew upgrade --cask macnite` from Terminal to apply it — the cask quits the running app to replace it, so the upgrade has to come from outside Macnite.
+
+The cask strips the macOS quarantine attribute on install (`postflight` xattr), so the unsigned DMG opens cleanly on first launch — no Apple Developer ID required.
+
+### Publishing a release
+
+1. Bump `version` in `package.json` and `src-tauri/tauri.conf.json`.
+2. Build the DMG:
    ```sh
-   security find-identity -v -p codesigning
+   npm run build
+   # → src-tauri/target/release/bundle/dmg/Macnite_<version>_aarch64.dmg
    ```
-   If empty: Xcode → Settings → Accounts → your Apple ID → Manage Certificates → `+` → "Developer ID Application".
-
-2. Generate an app-specific password at [appleid.apple.com](https://appleid.apple.com) → Sign-In and Security → App-Specific Passwords. (Your real Apple password won't work with `notarytool`.)
-
-3. Copy `.env.example` to `.env` and fill in the four values:
+3. Create a GitHub release tagged `v<version>` here and attach the DMG.
+4. In the [homebrew-macnite](https://github.com/seanblowers/homebrew-macnite) repo, bump `version` and `sha256` in `Casks/macnite.rb`:
    ```sh
-   cp .env.example .env
-   $EDITOR .env
+   shasum -a 256 src-tauri/target/release/bundle/dmg/Macnite_<version>_aarch64.dmg
    ```
-   `.env` is git-ignored.
+   Commit + push. Existing users get the update on their next `brew upgrade`.
 
-4. Build:
-   ```sh
-   npm run release
-   ```
-   This sources `.env`, signs the `.app`, builds the DMG, and submits it to Apple for notarization. Notarization usually finishes in 1–3 minutes; you'll see live status in the terminal.
+### Optional: signing & notarization
 
-Output: `src-tauri/target/release/bundle/dmg/Macnite_<version>_aarch64.dmg`. Upload that to a GitHub release; users get a clean drag-to-Applications install with no Gatekeeper prompts.
+If you later get an Apple Developer ID ($99/year), you can sign + notarize so Macnite shows as a trusted developer in About boxes and right-click → Open prompts. With a `.env` containing:
 
-For unsigned dev builds (faster, no notarization), use `npm run build` instead.
+```
+APPLE_ID=you@apple.id
+APPLE_PASSWORD=<app-specific password from appleid.apple.com>
+APPLE_TEAM_ID=<10-char Team ID>
+APPLE_SIGNING_IDENTITY=Developer ID Application: Your Name (TEAMID)
+```
+
+…run `npm run release` instead of `npm run build` in step 2. Everything else stays the same — the cask's `postflight` xattr is harmless on a signed bundle.
 
 ## Distribution notes
 
