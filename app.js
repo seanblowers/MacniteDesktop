@@ -40,9 +40,12 @@ const els = {
   installBtn: $('#install'),
   clearBtn: $('#clear'),
   logPanel: $('#log-panel'),
+  logHeader: $('#log-header'),
   logTitle: $('#log-title'),
   logOutput: $('#log-output'),
   logClose: $('#log-close'),
+  logToggle: $('#log-toggle'),
+  logSpinner: $('#log-spinner'),
   tabs: $$('.tab'),
   panels: { browse: $('#panel-browse'), installed: $('#panel-installed'), updates: $('#panel-updates') },
 };
@@ -66,18 +69,24 @@ function buildTile(entry, { showRowActions = false } = {}) {
 
   const icon = buildIcon(entry);
 
-  const body = document.createElement('div');
-  body.className = 'tile-body';
   const badgeLabel = entry.kind === 'cask' ? 'App' : 'Tool';
-  const installedTag = state.installedKeys.has(key)
-    ? ' <span class="badge formula">Installed</span>'
+  const installedTag = state.installedKeys.has(key) && !showRowActions
+    ? '<span class="badge installed">Installed</span>'
     : '';
-  body.innerHTML = `
-    <div class="name">${escapeHtml(entry.name)}<span class="badge ${entry.kind}">${badgeLabel}</span>${installedTag}</div>
-    ${entry.desc ? `<div class="desc">${escapeHtml(entry.desc)}</div>` : ''}
+
+  const name = document.createElement('div');
+  name.className = 'name';
+  name.innerHTML = `
+    <span class="name-text">${escapeHtml(entry.name)}</span>
+    <span class="badge ${entry.kind}">${badgeLabel}</span>
+    ${installedTag}
   `;
 
-  label.append(cb, icon, body);
+  const desc = document.createElement('div');
+  desc.className = 'desc';
+  desc.textContent = entry.desc || '';
+
+  label.append(cb, icon, name, desc);
 
   if (showRowActions && invoke) {
     const actions = document.createElement('div');
@@ -103,6 +112,12 @@ function buildTile(entry, { showRowActions = false } = {}) {
     });
     actions.append(upgrade, uninstall);
     label.append(actions);
+  }
+
+  // Stop a click on the row from triggering the label's checkbox toggle when
+  // the user is just trying to press an action button.
+  for (const btn of label.querySelectorAll('button')) {
+    btn.addEventListener('mousedown', (e) => e.stopPropagation());
   }
 
   return label;
@@ -273,6 +288,10 @@ function showLog(title) {
   els.logTitle.textContent = title;
   els.logOutput.textContent = '';
   els.logClose.hidden = true;
+  els.logToggle.hidden = false;
+  els.logSpinner.hidden = false;
+  els.logPanel.classList.add('collapsed');
+  els.logToggle.textContent = 'Show log';
   els.logPanel.hidden = false;
 }
 
@@ -288,7 +307,14 @@ function appendLog(line, stream = 'stdout') {
 function finishLog(summary) {
   appendLog('');
   appendLog(summary, 'info');
+  els.logTitle.textContent = summary;
+  els.logSpinner.hidden = true;
   els.logClose.hidden = false;
+}
+
+function toggleLog() {
+  const expanded = !els.logPanel.classList.toggle('collapsed');
+  els.logToggle.textContent = expanded ? 'Hide log' : 'Show log';
 }
 
 let logUnlisten = null;
@@ -361,7 +387,13 @@ els.searchInput.addEventListener('input', (e) => renderSearch(e.target.value));
 els.installBtn.addEventListener('click', installSelected);
 els.clearBtn.addEventListener('click', clearSelection);
 els.upgradeAllBtn.addEventListener('click', () => runOp('upgrade_all', null, 'Updating everything'));
-els.logClose.addEventListener('click', () => { els.logPanel.hidden = true; });
+els.logClose.addEventListener('click', (e) => {
+  e.stopPropagation();
+  els.logPanel.hidden = true;
+  els.logPanel.classList.add('collapsed');
+});
+els.logToggle.addEventListener('click', (e) => { e.stopPropagation(); toggleLog(); });
+els.logHeader.addEventListener('click', toggleLog);
 for (const tab of els.tabs) tab.addEventListener('click', () => switchTab(tab.dataset.tab));
 
 (async function init() {

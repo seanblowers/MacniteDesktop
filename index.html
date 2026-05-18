@@ -8,10 +8,9 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="hero">
-    <img class="logo" src="wordmark.svg" alt="Macnite" width="280" height="70" />
-    <p class="tagline">Install, update, and uninstall Mac apps in one click.</p>
-    <p class="subtle">Free. Open source. No accounts. No tracking.</p>
+  <header class="hero" data-tauri-drag-region>
+    <img class="logo" src="wordmark.svg" alt="Macnite" width="180" height="44" />
+    <p class="subtle">Free · Open source · No accounts</p>
   </header>
 
   <nav class="tabs" role="tablist">
@@ -68,10 +67,12 @@
     </section>
   </main>
 
-  <aside id="log-panel" class="log-panel" hidden>
-    <header>
-      <strong id="log-title">Working…</strong>
-      <button type="button" id="log-close" class="ghost" hidden>Close</button>
+  <aside id="log-panel" class="log-panel collapsed" hidden>
+    <header id="log-header">
+      <div class="spinner" id="log-spinner"></div>
+      <span class="log-title" id="log-title">Working…</span>
+      <button type="button" class="log-toggle ghost" id="log-toggle">Show log</button>
+      <button type="button" class="log-close ghost" id="log-close" hidden>Done</button>
     </header>
     <pre id="log-output" aria-live="polite"></pre>
   </aside>
