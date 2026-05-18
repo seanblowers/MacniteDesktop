@@ -39,6 +39,14 @@
     ],
     "category": "Utility",
     "shortDescription": "A Ninite-style installer for Mac apps.",
-    "longDescription": "Tick the Mac apps you want. Macnite installs them via Homebrew with one click — no Terminal required."
+    "longDescription": "Tick the Mac apps you want. Macnite installs them via Homebrew with one click — no Terminal required.",
+    "macOS": {
+      "dmg": {
+        "windowSize": { "width": 660, "height": 400 },
+        "appPosition": { "x": 180, "y": 200 },
+        "applicationFolderPosition": { "x": 480, "y": 200 }
+      },
+      "minimumSystemVersion": "11.0"
+    }
   }
 }
