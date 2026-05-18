@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "identifier": "app.seanblowers.macnite",
   "build": {
-    "frontendDist": "../",
+    "frontendDist": "../dist",
     "devUrl": null,
     "beforeDevCommand": "",
     "beforeBuildCommand": ""

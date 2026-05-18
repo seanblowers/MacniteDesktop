@@ -8,7 +8,7 @@
     "dev": "tauri dev",
     "build": "tauri build",
     "release": "bash -c 'set -a; [ -f .env ] && . ./.env; set +a; tauri build'",
-    "icon": "tauri icon ./logo.svg"
+    "icon": "tauri icon ./dist/logo.svg"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2"

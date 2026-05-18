@@ -43,13 +43,15 @@ npm run build
 
 ```
 .
-├── index.html         # main UI
-├── styles.css
-├── app.js             # frontend logic, talks to Rust via invoke()
-├── shared.js          # catalog loading + helpers
-├── popular.js         # curated list of popular apps
-├── logo.svg
-├── wordmark.svg
+├── dist/              # web assets bundled into the app
+│   ├── index.html
+│   ├── styles.css
+│   ├── app.js         # frontend logic, talks to Rust via invoke()
+│   ├── shared.js      # catalog loading + helpers
+│   ├── popular.js     # curated list of popular apps
+│   ├── popular-fonts.js
+│   ├── logo.svg
+│   └── wordmark.svg
 ├── package.json
 └── src-tauri/
     ├── Cargo.toml
