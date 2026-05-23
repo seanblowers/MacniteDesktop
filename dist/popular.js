@@ -45,6 +45,8 @@ export const POPULAR = [
   // AI assistants
   { kind: 'cask', token: 'chatgpt' },
   { kind: 'cask', token: 'claude' },
+  { kind: 'cask', token: 'openclaw' },
+  { kind: 'formula', token: 'openclaw-cli' },
 
   // Creative & gaming
   { kind: 'cask', token: 'handbrake' },

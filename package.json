@@ -1,7 +1,7 @@
 {
   "name": "macnite-desktop",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Macnite Desktop — a Ninite-style installer for Mac apps, built with Tauri.",
   "scripts": {
     "tauri": "tauri",
